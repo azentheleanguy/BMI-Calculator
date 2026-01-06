@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BMI Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f4f6f8;
+  display: flex;
+  justify-content: center;
+  padding: 30px;
+}
+
+.wrapper {
+  width: 100%;
+  max-width: 900px;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+h1 {
+  grid-column: span 2;
+  margin: 0 0 10px;
+}
+
+/* LEFT PANEL */
+.left label {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.left input, .left select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+}
+
+.buttons {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  padding: 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+#calculateBtn {
+  background: #4caf50;
+  color: white;
+}
+
+#resetBtn {
+  background: #e74c3c;
+  color: white;
+}
+
+/* RIGHT PANEL */
+.right {
+  text-align: center;
+}
+
+.result-box {
+  margin-top: 15px;
+  padding: 15px;
+  background: #f1f3f5;
+  border-radius: 6px;
+  text-align: left;
+}
+
+/* GAUGE */
+.gauge {
+  width: 260px;
+  height: 130px;
+  margin: 10px auto;
+  border-radius: 260px 260px 0 0;
+  background: conic-gradient(
+    #3498db 0deg 72deg,
+    #2ecc71 72deg 144deg,
+    #f39c12 144deg 216deg,
+    #e74c3c 216deg 360deg
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+.gauge::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 220px;
+  height: 110px;
+  background: white;
+  border-radius: 220px 220px 0 0;
+  transform: translateX(-50%);
+}
+
+.needle {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 4px;
+  height: 120px;
+  background: black;
+  transform-origin: bottom;
+  transform: rotate(-90deg);
+  z-index: 5;
+}
+
+.center-dot {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: black;
+  border-radius: 50%;
+  transform: translate(-50%, 50%);
+  z-index: 6;
+}
+
+small {
+  color: #555;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+  <h1>BMI Calculator</h1>
+
+  <!-- LEFT SIDE -->
+  <div class="left">
+    <label>Name</label>
+    <input type="text" id="name">
+
+    <label>Age</label>
+    <input type="number" id="age">
+
+    <label>Gender</label>
+    <select id="gender">
+      <option value="">Select</option>
+      <option>Male</option>
+      <option>Female</option>
+    </select>
+
+    <label>Height (cm)</label>
+    <input type="number" id="height">
+
+    <label>Weight (kg)</label>
+    <input type="number" id="weight">
+
+    <div class="buttons">
+      <button id="calculateBtn" type="button">Calculate</button>
+      <button id="resetBtn" type="button">Reset</button>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDE -->
+  <div class="right">
+    <div class="gauge">
+      <div class="needle" id="needle"></div>
+      <div class="center-dot"></div>
+    </div>
+
+    <div class="result-box" id="result">
+      <p><strong>Enter details to see your BMI report.</strong></p>
+    </div>
+
+    <small>Healthy BMI range: 18.5 – 25</small>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const calculateBtn = document.getElementById("calculateBtn");
+  const resetBtn = document.getElementById("resetBtn");
+
+  calculateBtn.addEventListener("click", () => {
+    const name = document.getElementById("name").value;
+    const age = document.getElementById("age").value;
+    const gender = document.getElementById("gender").value;
+    const height = document.getElementById("height").value;
+    const weight = document.getElementById("weight").value;
+    const result = document.getElementById("result");
+    const needle = document.getElementById("needle");
+
+    if (!name || !age || !gender || !height || !weight) {
+      result.innerHTML = "<p>Please fill all fields.</p>";
+      return;
+    }
+
+    const bmi = weight / ((height / 100) ** 2);
+    const bmiValue = bmi.toFixed(1);
+
+    let category = "";
+    let advice = "";
+
+    if (bmi < 18.5) {
+      category = "Underweight";
+      advice = "Increase calorie intake and consult a nutritionist.";
+    } else if (bmi < 25) {
+      category = "Normal";
+      advice = "Maintain your healthy lifestyle.";
+    } else if (bmi < 30) {
+      category = "Overweight";
+      advice = "Exercise regularly and eat balanced meals.";
+    } else {
+      category = "Obese";
+      advice = "Consult a healthcare professional.";
+    }
+
+    const angle = Math.min(180, Math.max(0, (bmi - 15) * 6));
+    needle.style.transform = `rotate(${angle - 90}deg)`;
+
+    result.innerHTML = `
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Age:</strong> ${age}</p>
+      <p><strong>Gender:</strong> ${gender}</p>
+      <p><strong>BMI:</strong> ${bmiValue}</p>
+      <p><strong>Category:</strong> ${category}</p>
+      <p>${advice}</p>
+    `;
+  });
+
+  resetBtn.addEventListener("click", () => {
+    document.querySelectorAll("input, select").forEach(e => e.value = "");
+    document.getElementById("result").innerHTML =
+      "<p><strong>Enter details to see your BMI report.</strong></p>";
+    document.getElementById("needle").style.transform = "rotate(-90deg)";
+  });
+
+});
+</script>
+
+</body>
+</html>
